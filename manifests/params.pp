@@ -8,11 +8,18 @@
 class etcd::params {
   $etcd_package_ensure = 'latest'
 
-  case $::osfamily {
-    'RedHat': {
-      $etcd_config  = '/etc/etcd/etcd.conf'
-      $etcd_package = 'etcd'
-      $etcd_service = 'etcd'
+  case $::operatingsystem {
+    'CentOS', 'OracleLinux', 'RedHat', 'Scientific': {
+      case $::operatingsystemmajrelease {
+        '7': {
+          $etcd_config  = '/etc/etcd/etcd.conf'
+          $etcd_package = 'etcd'
+          $etcd_service = 'etcd'
+        }
+        default: {
+          fail("The ${module_name} module is not supported on an ${::operatingsystem} ${::operatingsystemmajrelease} distribution.")
+        }
+      }
     }
     default: {
       fail("The ${module_name} module is not supported on an ${::osfamily} based system.")
