@@ -19,24 +19,17 @@
 class etcd (
   $ensure = $::etcd::params::etcd_package_ensure
 ) inherits ::etcd::params {
-  case $::osfamily {
-    'RedHat': {
-      package { $::etcd::params::etcd_package:
-        ensure  => $ensure,
-      }
+  package { $::etcd::params::etcd_package:
+    ensure  => $ensure,
+  }
 
-      $config = hiera('etcd',{})
-      create_resources('etcd::config',$config)
+  $config = hiera('etcd',{})
+  create_resources('etcd::config',$config)
 
-      service { $::etcd::params::etcd_service:
-        ensure  => running,
-        enable  => true,
-        require => Package[$::etcd::params::etcd_package],
-      }
-    }
-    default: {
-      fail("The ${module_name} module is not supported on an ${::osfamily} based system.")
-    }
+  service { $::etcd::params::etcd_service:
+    ensure  => running,
+    enable  => true,
+    require => Package[$::etcd::params::etcd_package],
   }
 
 }
