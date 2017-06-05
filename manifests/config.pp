@@ -1,16 +1,17 @@
 define etcd::config (
-  $content
+  $value
 ) {
   include ::etcd
 
-  file { $::etcd::params::etcd_config:
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    content => $content,
-    notify  => Service[$::etcd::params::etcd_service],
+  $key = $title
+
+  augeas { "etcd_conf/${key}":
+    lens    => 'Shellvars.lns',
+    incl    => $::etcd::params::etcd_config,
+    onlyif  => "get ${key} != '${value}'",
+    changes => "set ${key} '${value}'",
     require => Package[$::etcd::params::etcd_package],
+    notify  => Service[$::etcd::params::etcd_service],
   }
 
 }
